@@ -1,0 +1,9 @@
+
+.category-badge {
+    margin-right: 5px;
+
+}
+
+.category-badge:last-child {
+    margin-right: 0;
+}
