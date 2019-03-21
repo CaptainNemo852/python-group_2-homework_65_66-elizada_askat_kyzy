@@ -16,6 +16,3 @@ const HallDisplayCard = props => {
 };
 
 export default HallDisplayCard;
-
-
-

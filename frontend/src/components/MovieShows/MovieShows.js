@@ -1,9 +1,9 @@
 import React, {Fragment} from "react";
-
+import moment from 'moment';
 
 
 const formatDate = (dateString) => {
-    return (dateString).format('YYYY-MM-DD HH:mm')
+    return moment(dateString).format('YYYY-MM-DD HH:mm')
 };
 
 const MovieShows = props => {

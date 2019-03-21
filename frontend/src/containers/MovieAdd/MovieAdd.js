@@ -1,21 +1,12 @@
 import React, {Component, Fragment} from 'react';
 import {MOVIES_URL} from "../../urls";
 import MovieForm from "../../components/MovieForm/MovieForm";
-
+import axios from 'axios';
 
 class MovieAdd extends Component {
 
     state = {
-        alert: null
-    };
-
-    showErrorAlert = (error) => {
-        console.log(error);
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.alert = {type: 'danger', message: 'Movie was not added!'};
-            return newState;
-        })
+        errors: {}
     };
 
     gatherFormData = (movie) => {
@@ -36,20 +27,28 @@ class MovieAdd extends Component {
     formSubmitted = (movie) => {
 
         const formData = this.gatherFormData(movie);
-        return fetch(MOVIES_URL, {method: "POST", body: formData})
+        return axios.post(MOVIES_URL, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': 'Token ' + localStorage.getItem('auth-token')
+            }
+        })
             .then(response => {
-                return response.json();
-            }).then(movie => this.props.history.replace('/movies/' + movie.id))
+                const movie = response.data;
+                console.log(movie);
+                this.props.history.replace('/movies/' + movie.id);
+            })
             .catch(error => {
                 console.log(error);
-                this.showErrorAlert(error.response);
+                console.log(error.response);
+                this.setState({
+                    errors: error.response.data
+                })
             });
     };
     render() {
-        const alert = this.state.alert;
         return <Fragment>
-            {alert ? <div className={"mb-2 alert alert-" + alert.type}>{alert.message}</div> : null}
-            <MovieForm onSubmit={this.formSubmitted}/>
+            <MovieForm onSubmit={this.formSubmitted} errors={this.state.errors}/>
         </Fragment>
     }
 }

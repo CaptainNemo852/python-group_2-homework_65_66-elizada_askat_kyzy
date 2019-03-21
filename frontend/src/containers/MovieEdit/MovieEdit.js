@@ -1,13 +1,12 @@
 import React, {Component, Fragment} from 'react';
 import {MOVIES_URL} from "../../urls";
 import MovieForm from "../../components/MovieForm/MovieForm";
-
+import axios from 'axios';
 
 class MovieEdit extends Component {
     state = {
         movie: null,
-
-        alert: null,
+        errors: {},
     };
 
     componentDidMount() {
@@ -28,14 +27,6 @@ class MovieEdit extends Component {
             });
     }
 
-    showErrorAlert = (error) => {
-        console.log(error);
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.alert = {type: 'danger', message: `Movie was not added!`};
-            return newState;
-        });
-    };
 
     gatherFormData = (movie) => {
         let formData = new FormData();
@@ -54,20 +45,31 @@ class MovieEdit extends Component {
 
     formSubmitted = (movie) => {
         const formData = this.gatherFormData(movie);
-        return fetch(MOVIES_URL + this.props.match.params.id + '/', {method: "PUT", body: formData})
+        return axios.put(MOVIES_URL + this.props.match.params.id + '/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': 'Token ' + localStorage.getItem('auth-token')
+            }
+        })
             .then(response => {
-                return response.json();
-            }).then(movie => this.props.history.replace('/movies/' + movie.id)).catch(error => {
+                const movie = response.data;
+                console.log(movie);
+                this.props.history.replace('/movies/' + movie.id);
+            })
+            .catch(error => {
                 console.log(error);
-                this.showErrorAlert(error.response);
+                console.log(error.response);
+                this.setState({
+                    ...this.state,
+                    errors: error.response.data
+                });
             });
     };
 
     render() {
-        const {alert, movie} = this.state;
+        const {errors, movie} = this.state;
         return <Fragment>
-            {alert ? <div className={"mb-2 alert alert-" + alert.type}>{alert.message}</div> : null}
-            {movie ? <MovieForm onSubmit={this.formSubmitted} movie={movie}/> : null}
+            {movie ? <MovieForm onSubmit={this.formSubmitted} movie={movie} errors={errors}/> : null}
         </Fragment>
     }
 }

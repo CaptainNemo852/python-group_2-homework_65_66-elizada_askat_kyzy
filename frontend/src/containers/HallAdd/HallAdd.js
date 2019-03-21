@@ -1,22 +1,15 @@
 import React, {Component, Fragment} from 'react';
 import {HALLS_URL} from "../../urls";
 import HallForm from "../../components/HallForm/HallForm";
+import axios from 'axios';
 
 
 class HallAdd extends Component {
 
     state = {
-        alert: null
+        errors: {}
     };
 
-    showErrorAlert = (error) => {
-        console.log(error);
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.alert = {type: 'danger', message: 'Hall was not added!'};
-            return newState;
-        })
-    };
 
     gatherFormData = (hall) => {
         let formData = new FormData();
@@ -29,22 +22,30 @@ class HallAdd extends Component {
 
     formSubmitted = (hall) => {
         const formData = this.gatherFormData(hall);
-        return fetch(HALLS_URL, {method: "POST", body: formData})
+        return axios.post(HALLS_URL, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': 'Token ' + localStorage.getItem('auth-token')
+            }
+        })
             .then(response => {
-                return response.json();
-            }).then(hall => this.props.history.replace('/halls/' + hall.id))
+                const hall = response.data;
+                console.log(hall);
+                this.props.history.replace('/halls/' + hall.id);
+            })
             .catch(error => {
                 console.log(error);
                 console.log(error.response);
-                this.showErrorAlert(error.response);
+                this.setState({
+                    errors: error.response.data
+                })
+
             });
     };
 
     render() {
-        const alert = this.state.alert;
         return <Fragment>
-            {alert ? <div className={"mb-2 alert alert-" + alert.type}>{alert.message}</div> : null}
-            <HallForm onSubmit={this.formSubmitted}/>
+            <HallForm onSubmit={this.formSubmitted} errors={this.state.errors}/>
         </Fragment>
     }
 }

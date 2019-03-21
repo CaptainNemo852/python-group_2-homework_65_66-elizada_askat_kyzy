@@ -67,6 +67,13 @@ class HallForm extends Component {
         }
     };
 
+    showErrors = (name) => {
+        if(this.props.errors && this.props.errors[name]) {
+            return this.props.errors[name].map((error, index) => <p className="text-danger" key={index}>{error}</p>);
+        }
+        return null;
+    };
+
 
     render() {
         if (this.state.hall) {
@@ -74,13 +81,13 @@ class HallForm extends Component {
             const {name} = this.state.hall;
             const {submitEnabled} = this.state;
 
-
             return <div>
                 <form onSubmit={this.submitForm}>
                     <div className="form-group">
                         <label className="font-weight-bold">Название зала</label>
                         <input className="form-control" type="text" name="name" value={name}
                                onChange={this.inputChanged}/>
+                        {this.showErrors('name')}
                     </div>
                     <button disabled={!submitEnabled}
                             className="btn btn-primary" type="submit">Сохранить

@@ -3,7 +3,7 @@ import {HALLS_URL} from "../../urls";
 import HallCard from '../../components/HallCard/HallCard';
 
 
-class HallList extends  Component {
+class HallList extends Component {
     state = {
         halls: []
     };
@@ -20,7 +20,11 @@ class HallList extends  Component {
 
 
     hallDelete = (hallId) => {
-        fetch(HALLS_URL + hallId + '/', {method: "DELETE"});
+        fetch(HALLS_URL + hallId + '/', {
+            method: "DELETE", headers: {
+                'Authorization': 'Token ' + localStorage.getItem('auth-token')
+            }
+        });
         this.setState(prevState => {
             let newState = {...prevState};
             let halls = [...newState.halls];
@@ -32,13 +36,19 @@ class HallList extends  Component {
 
     };
 
-    render(){
-        return(
+    redirectTo = () => {
+        this.props.history.push('/login')
+    };
+
+    render() {
+        return (
             <Fragment>
                 <div className='row'>
                     {this.state.halls.map(hall => {
                         return <div className='col-xs-12 col-sm-6 col-lg-4 mt-3' key={hall.id}>
-                            <HallCard onDelete={() => this.hallDelete(hall.id)} hall={hall}/>
+                            <HallCard onDelete={localStorage.getItem('auth-token') ?
+                                () => this.hallDelete(hall.id) : () => this.redirectTo()}
+                                      hall={hall}/>
                         </div>
                     })}
                 </div>

@@ -1,12 +1,12 @@
 import React, {Component, Fragment} from 'react';
 import {HALLS_URL} from "../../urls";
 import HallForm from "../../components/HallForm/HallForm";
-
+import axios from 'axios';
 
 class HallEdit extends Component {
     state = {
         hall: null,
-        alert: null,
+        errors: {}
     };
 
     componentDidMount() {
@@ -25,14 +25,6 @@ class HallEdit extends Component {
             });
     }
 
-    showErrorAlert = (error) => {
-        console.log(error);
-        this.setState(prevState => {
-            let newState = {...prevState};
-            newState.alert = {type: 'danger', message: `Hall was not added!`};
-            return newState;
-        });
-    };
 
     gatherFormData = (hall) => {
         let formData = new FormData();
@@ -45,20 +37,31 @@ class HallEdit extends Component {
 
     formSubmitted = (hall) => {
         const formData = this.gatherFormData(hall);
-        return fetch(HALLS_URL + this.props.match.params.id + '/', {method: "PUT", body: formData})
+        return axios.put(HALLS_URL + this.props.match.params.id + '/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': 'Token ' + localStorage.getItem('auth-token')
+            }
+        })
             .then(response => {
-                return response.json();
-            }).then(hall => this.props.history.replace('/halls/' + hall.id)).catch(error => {
+                const hall = response.data;
+                console.log(hall);
+                this.props.history.replace('/halls/' + hall.id);
+            })
+            .catch(error => {
                 console.log(error);
-                this.showErrorAlert(error.response);
+                console.log(error.response);
+                this.setState({
+                    ...this.state,
+                    errors: error.response.data
+                });
             });
     };
 
     render() {
-        const {alert, hall} = this.state;
+        const {errors, hall} = this.state;
         return <Fragment>
-            {alert ? <div className={"mb-2 alert alert-" + alert.type}>{alert.message}</div> : null}
-            {hall ? <HallForm onSubmit={this.formSubmitted} hall={hall}/> : null}
+            {hall ? <HallForm onSubmit={this.formSubmitted} hall={hall} errors={this.state.errors}/> : null}
         </Fragment>
     }
 }

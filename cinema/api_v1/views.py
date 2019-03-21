@@ -4,9 +4,18 @@ from api_v1.serializers import MovieCreateSerializer, MovieDisplaySerializer, Ha
     ShowSerializer, SeatSerializer, CategorySerializer, BookingCreateSerializer, \
     DiscountSerializer, TicketsSerializer, BookingDisplaySerializer
 from django_filters import rest_framework as filters
+from rest_framework.permissions import IsAuthenticated
 
 
-class MovieViewSet(viewsets.ModelViewSet):
+class BaseViewSet(viewsets.ModelViewSet):
+    def get_permissions(self):
+        permissions = super().get_permissions()
+        if self.request.method in ["POST", "DELETE", "PUT", "PATCH"]:
+            permissions.append(IsAuthenticated())
+        return permissions
+
+
+class MovieViewSet(BaseViewSet):
     queryset = Movie.objects.active().order_by('-release_date')
     serializer_class = MovieCreateSerializer
 
@@ -21,7 +30,7 @@ class MovieViewSet(viewsets.ModelViewSet):
         instance.save()
 
 
-class HallViewSet(viewsets.ModelViewSet):
+class HallViewSet(BaseViewSet):
     queryset = Hall.objects.all()
     serializer_class = HallSerializer
 
@@ -38,7 +47,7 @@ class ShowFilter(filters.FilterSet):
         fields = ['movie_id', 'hall_id', 'starts_after', 'starts_before']
 
 
-class ShowViewSet(viewsets.ModelViewSet):
+class ShowViewSet(BaseViewSet):
     queryset = Show.objects.all()
     serializer_class = ShowSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -50,17 +59,17 @@ class ShowViewSet(viewsets.ModelViewSet):
 #
 
 
-class SeatViewSet(viewsets.ModelViewSet):
+class SeatViewSet(BaseViewSet):
     queryset = Seat.objects.all().order_by('-hall')
     serializer_class = SeatSerializer
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(BaseViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class BookingViewSet(viewsets.ModelViewSet):
+class BookingViewSet(BaseViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingCreateSerializer
 
@@ -71,11 +80,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             return BookingCreateSerializer
 
 
-class DiscountViewSet(viewsets.ModelViewSet):
+class DiscountViewSet(BaseViewSet):
     queryset = Discount.objects.all()
     serializer_class = DiscountSerializer
 
 
-class TicketViewSet(viewsets.ModelViewSet):
+class TicketViewSet(BaseViewSet):
     queryset = Tickets.objects.all()
     serializer_class = TicketsSerializer

@@ -72,7 +72,7 @@ class MovieDetail extends Component {
                         </div>
 
                         <NavLink to={'/movies/' + this.state.movie.id + '/edit'}
-                                 className="btn btn-primary m-2">Edit</NavLink>
+                                 className="btn btn-primary m-2">Edit Movie</NavLink>
 
                     </div>
                 </div>

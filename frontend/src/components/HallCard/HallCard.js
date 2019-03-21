@@ -14,3 +14,4 @@ const HallCard = function (props) {
 };
 
 export default HallCard;
+

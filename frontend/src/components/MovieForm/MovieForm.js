@@ -23,11 +23,9 @@ class MovieForm extends Component {
             categories: [],
             submitEnabled: true,
             movie: newMovie,
-            posterFileName: ""
+            posterFileName: "",
         };
-
         if (this.props.movie) {
-
             this.state.posterUrl = this.props.movie.poster;
             this.state.movie = this.props.movie;
 
@@ -140,6 +138,13 @@ class MovieForm extends Component {
         }
     };
 
+    showErrors = (name) => {
+        if(this.props.errors && this.props.errors[name]) {
+            return this.props.errors[name].map((error, index) => <p className="text-danger" key={index}>{error}</p>);
+        }
+        return null;
+    };
+
 
     render() {
         if (this.state.movie) {
@@ -152,30 +157,33 @@ class MovieForm extends Component {
 
             const selectOptions = this.getCategoryOptions();
             const selectValue = this.getCategoryValue();
-
             return <div>
                 <form onSubmit={this.submitForm}>
                     <div className="form-group">
                         <label className="font-weight-bold">Название</label>
                         <input className="form-control" type="text" name="name" value={name}
                                onChange={this.inputChanged}/>
+                        {this.showErrors('name')}
                     </div>
                     <div className="form-group">
                         <label>Описание</label>
                         <input className="form-control" type="text" name="description" value={description}
                                onChange={this.inputChanged}/>
+                        {this.showErrors('description')}
                     </div>
                     <div className="form-group">
                         <label className="font-weight-bold">Дата выхода в прокат:</label>
                         <DatePicker dateFormat="yyyy-MM-dd" selected={releaseDateSelected} name="release_date"
                                     className="form-control"
                                     onChange={(date) => this.dateChanged('release_date', date)}/>
+                        {this.showErrors('release_date')}
                     </div>
                     <div className="form-group">
                         <label>Дата завершения проката:</label>
                         <DatePicker dateFormat="yyyy-MM-dd" selected={finishDateSelected} className="form-control"
                                     name="finish_date"
                                     onChange={(date) => this.dateChanged('finish_date', date)}/>
+                        {this.showErrors('finish_date')}
                     </div>
 
 
@@ -184,15 +192,16 @@ class MovieForm extends Component {
                         <div>
                             <input type="file" name="poster" value={posterFileName} onChange={this.fileChanged}/>
                             {this.state.posterUrl ? <a href={this.state.posterUrl}>Текущий файл</a> : null}
+                            {this.showErrors('poster')}
                         </div>
                     </div>
                     <div className="form-group">
                         <label>Категории</label>
-
                         <Select options={selectOptions}
                                 value={selectValue}
                                 isMulti={true} onChange={(value) => this.selectChanged(value, 'categories')}
                                 name="categories"/>
+                        {this.showErrors('categories')}
                     </div>
                     <button disabled={!submitEnabled}
                             className="btn btn-primary" type="submit">Сохранить

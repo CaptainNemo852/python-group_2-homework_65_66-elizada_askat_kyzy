@@ -41,7 +41,6 @@ class HallDetail extends Component {
     };
 
     render() {
-        console.log(this.state.shows);
         if (!this.state.hall) return null;
         return <Fragment>
             <div className="col-4 m-auto">
