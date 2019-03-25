@@ -14,6 +14,9 @@ class Menu extends Component {
 
 
     render() {
+        const username = localStorage.getItem('username');
+        const userId = localStorage.getItem('id');
+        const isAdmin = localStorage.getItem('is_admin');
         return <Fragment>
             <button onClick={this.toggle}
                     className="navbar-toggler"
@@ -31,6 +34,14 @@ class Menu extends Component {
                     <MenuItem to="/movies/create">Добавить фильм</MenuItem>
                     <MenuItem to='/halls/'>Залы</MenuItem>
                     <MenuItem to='/halls/create'>Добавить зал</MenuItem>
+                </ul>
+                <ul className="navbar-nav">
+                    {username ? [
+                        <MenuItem to={"/users/" + userId} key="username">{username}</MenuItem>,
+                        <MenuItem to="/logout" key="logout">Выйти</MenuItem>]:[
+                        <MenuItem to="/login" key="login">Войти</MenuItem>,
+                        <MenuItem to="/register" key="register">Зарегистрироваться</MenuItem>
+                    ]}
                 </ul>
             </div>
         </Fragment>
